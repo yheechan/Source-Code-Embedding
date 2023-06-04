@@ -1,0 +1,11 @@
+.DS_Store
+.vscode
+*.o
+*temp*
+*tmp*
+*ec*
+*copy*
+bin/
+*.swp
+git_projects/
+data/
