@@ -1,4 +1,5 @@
 import os
+import argparse
 import subprocess
 import random
 from tqdm import tqdm
@@ -19,68 +20,82 @@ def create_directory(directory_path):
 		print(f"Directory already exists: {directory_path}")
 
 
-# Main
-# Define the directory to search in
-directory = "../../git_projects/"
+if __name__ == '__main__':
+  # create ArgumentParser object
+  parser = argparse.ArgumentParser()
 
-# Define the find command to search for .c and .cpp files
-find_command = f"find {directory} -type f \( -name '*.c' -o -name '*.cpp' \)"
+  # Add an argument to the parser
+  parser.add_argument("data_num_", help="Enter the number of data for each project.")
 
-# Execute the find command using subprocess and get the output
-find_process = subprocess.Popen(find_command, shell=True, stdout=subprocess.PIPE)
-find_output, _ = find_process.communicate()
+  # Parser the command-line argument
+  args = parser.parse_args()
 
-# Decode the output and split it into individual file paths
-file_paths = find_output.decode().splitlines()
+  data_num = int(args.data_num_)
 
-info_dict = {}
+  # Define the directory to search in
+  directory = "../../git_projects/"
 
-# Read the content of each file
-for file_path in file_paths:
-	project_nm = file_path.split('/')[2]
-	max_lines = count_lines(file_path)
+  # Define the find command to search for .c and .cpp files
+  find_command = f"find {directory} -type f \( -name '*.c' -o -name '*.cpp' \)"
 
-	if project_nm not in info_dict:
-		info_dict[project_nm] = []
-	
-	info_dict[project_nm].append((file_path, max_lines))
+  # Execute the find command using subprocess and get the output
+  find_process = subprocess.Popen(find_command, shell=True, stdout=subprocess.PIPE)
+  find_output, _ = find_process.communicate()
 
-projects = list(info_dict.keys())
+  # Decode the output and split it into individual file paths
+  file_paths = find_output.decode().splitlines()
 
-# for each project
-# make 1000 data
-# from random c or cpp source code of that project
-# containing random 4~8 lines
+  info_dict = {}
 
-data_path = "../../data/"
-create_directory(data_path)
+  # Read the content of each file
+  for file_path in file_paths:
+    project_nm = file_path.split('/')[3]
+    max_lines = count_lines(file_path)
 
-for project in projects:
-	num_of_files = len(info_dict[project])
-	full_data_path = data_path + project
-	
+    if project_nm not in info_dict:
+      info_dict[project_nm] = []
+    
+    info_dict[project_nm].append((file_path, max_lines))
 
-	print("*****["+project+"]*****")
-	for i in tqdm(range(1000)):
-		
-		while 1:
-			file_idx = random.randint(0, num_of_files-1)
-			file_path, file_max_line = info_dict[project][file_idx]
-			number_of_lines = random.randint(4, 8)
+  projects = list(info_dict.keys())
 
-			if 1 < file_max_line-number_of_lines:
-				break
+  # for each project
+  # make 1000 data
+  # from random c or cpp source code of that project
+  # containing random 4~8 lines
 
-		start_line_num = random.randint(1, file_max_line-number_of_lines)
-		end_line_num = start_line_num+number_of_lines
+  data_path = "../../data/"
+  create_directory(data_path)
 
-		# head_command = f"head -n {end_line_num} {file_path} | tail -n +{start_line_num}"
-		sed_command = f"sed -n '{start_line_num},{end_line_num}p' {file_path} | tr '\n' ' '"
-		output = subprocess.check_output(sed_command, shell=True).decode().strip()
+  for project in projects:
+    num_of_files = len(info_dict[project])
+    full_data_path = data_path + project
+    
 
-		if not os.path.exists(full_data_path):
-			with open(full_data_path, 'w') as file:
-				file.write(output)
-		else:
-			with open(full_data_path, 'a') as file:
-				file.write("\n"+output)
+    print("*****["+project+"]*****")
+    for i in tqdm(range(data_num)):
+      
+      while 1:
+        file_idx = random.randint(0, num_of_files-1)
+        file_path, file_max_line = info_dict[project][file_idx]
+        number_of_lines = random.randint(4, 8)
+
+        if 1 > file_max_line-number_of_lines:
+          continue
+
+        start_line_num = random.randint(1, file_max_line-number_of_lines)
+        end_line_num = start_line_num+number_of_lines
+        break
+
+      # head_command = f"head -n {end_line_num} {file_path} | tail -n +{start_line_num}"
+      sed_command = f"sed -n '{start_line_num},{end_line_num}p' {file_path} | tr '\n' ' '"
+      output_str = subprocess.check_output(sed_command, shell=True).decode().strip()
+
+      output = output_str.replace("\n", "").replace("\t", "").replace("\0", "").replace("\r", "").replace("\f", "")
+
+      if not os.path.exists(full_data_path):
+        with open(full_data_path, 'w') as file:
+          file.write(output)
+      else:
+        with open(full_data_path, 'a') as file:
+          file.write("\n"+output)
