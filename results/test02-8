@@ -1,8 +1,8 @@
 n_neighbers: 10
 n_components: 90
 min_dist: 0.0
-min_cluster_size: 15
 
+min_cluster_size: 15
 min_samples: 512
 
 total number of cluster: 9
