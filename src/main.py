@@ -1,69 +1,126 @@
-import subprocess
-from tqdm import tqdm
+import warnings
+warnings.filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 
-from transformers import AutoTokenizer, AutoModel
-import torch
+import argparse
+import pprint
 
-def get_projects (path):
-	command = f"ls {path}"
-	result = subprocess.run(command, shell=True, capture_output=True, text=True)
+# MY UTIL LIBRARY
+import data_util
+import codeBERT_util
+import cluster_util
+import record_util
 
-	if result.returncode == 0:
-		file_list = result.stdout.splitlines()
-		return file_list
-	else:
-		print("Error: ", result.stderr)
 
-def get_data (path):
-	command = f"cat {path}"
-	result = subprocess.run(command, shell=True, capture_output=True, text=True)
+def define_argparser():
+	# create ArgumentParser object
+	p = argparse.ArgumentParser()
 
-	if result.returncode == 0:
-		lines = result.stdout.splitlines()
-		return lines
-	else:
-		print("Error: ", result.stderr)
+	# Add arguments to the parser
+	p.add_argument(
+		'--data_num',
+		type=int,
+		default=5000,
+		help='Enter the number of data point to use for each project. Default=%(default)s'
+	)
 
-def embed_data (projects, data_list, tokenizer, model, device):
-  initial_tensor = torch.empty(0, 768)
+	p.add_argument(
+		'--n_neighbors',
+		type=int,
+		default=10,
+		help='[UMAP] Number of approximate nearest neighbors used to construct the initial high-dimensional graph. Default=%(default)s'
+	)
 
-  for i in range(len(projects)):
-    print("*****["+projects[i]+"]*****")
-    for j in tqdm(range(1000)):
-      code_tokens = tokenizer.tokenize(data_list[i][j])
-      tokens = [tokenizer.cls_token]+code_tokens+[tokenizer.eos_token]
-      tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
+	p.add_argument(
+		'--n_components',
+		type=int,
+		default=256,
+		help='[UMAP] Number of dimension to reduce to. Default=%(default)s'
+	)
 
-      if (len(tokens_ids) > 512):
-        continue
-      
-      # Perform gradient checkpointing during the forward pass
-      with torch.no_grad():
-        context_embeddings = model(torch.tensor(tokens_ids).to(device)[None,:])[0][:,0,:]
+	p.add_argument(
+		'--min_dist',
+		type=float,
+		default=0.0,
+		help='[UMAP] Minimum distance between point in low-dimensional space. Default=%(default)s'
+	)
 
-      # context_embeddings = model(torch.tensor(tokens_ids).to(device)[None,:])[0][:,0,:]
-      initial_tensor = torch.cat((initial_tensor, context_embeddings.cpu()), dim=0)
+	p.add_argument(
+		'--min_cluster_size',
+		type=int,
+		default=5,
+		help='[HDBSCAN] Minimum size a cluster must contain. Default=%(default)s'
+	)
 
-      # release tensor
-      del context_embeddings
-      torch.cuda.empty_cache()
-    
-  return initial_tensor
+	p.add_argument(
+		'--min_samples',
+		type=int,
+		default=5,
+		help='[HDBSCAN] The minimum number of points required to form a dense region (core points). Default=%(default)s'
+	)
 
-# ***** get lists of projects *****
-data_path = "../data/"
-projects = get_projects(data_path)
+	p.add_argument(
+		'--research_title',
+		required=True,
+		help='The name of the research subject. (ex: test-01)'
+	)
 
-# ***** get data for each projects *****
-data_list = []
-for project in projects:
-	full_path = data_path + project
-	data_list.append( get_data(full_path) )
+	config = p.parse_args()
 
-# ***** bring CodeBert Model *****
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-model = AutoModel.from_pretrained("microsoft/codebert-base").to(device) # RobertaModel
+	return config
 
-# ***** tokenize and embed data *****
-embeddings = embed_data(projects, data_list, tokenizer, model, device)
+
+def main(config):
+	
+	# PRINT CONFIG HELP
+	def print_config(config):
+		pp = pprint.PrettyPrinter(indent=4)
+		pp.pprint(vars(config))
+	print_config(config)
+
+	# GET LISTS OF PROJECTS
+	data_path = "../data/"
+	projects = data_util.get_projects(data_path)
+
+
+	# GET DATA FOR EACH PROJECTS
+	data_list = []
+	for project in projects:
+		full_path = data_path + project
+		data_list.append(data_util.get_data(full_path))
+	
+
+	# ***** tokenize and embed data *****
+	embeddings, data_list = codeBERT_util.embed_data(projects, data_list, config.data_num)
+
+
+	chng_neigh = [
+		[10, 256, 0.0, 60, 10, 'testTERM-01'],
+	]
+
+	# docs_per_topic: each data labeled to a cluster (topic)
+	# top_n_words: dataframe of datapoint with top n words sorted (according to c-tf-idf)
+	# topic_sizes: topic sizes in order of cluster with most datapoints
+	docs_per_topic, top_n_words, topic_sizes = cluster_util.cluster(
+		embeddings.numpy(),
+		data_list,
+		config.n_neighbors,
+		config.n_components,
+		config.min_dist,
+		config.min_cluster_size,
+		config.min_samples,
+		config.research_title
+	)
+
+	record_util.write_results(topic_sizes, top_n_words,
+		config.n_neighbors,
+		config.n_components,
+		config.min_dist,
+		config.min_cluster_size,
+		config.min_samples,
+		config.research_title
+	)
+
+
+if __name__ == '__main__':
+	config = define_argparser()
+	main(config)

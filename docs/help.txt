@@ -1,0 +1,20 @@
+usage: main.py [-h] [--data_num DATA_NUM] [--n_neighbors N_NEIGHBORS] [--n_components N_COMPONENTS]
+               [--min_dist MIN_DIST] [--min_cluster_size MIN_CLUSTER_SIZE] [--min_samples MIN_SAMPLES]
+               --research_title RESEARCH_TITLE
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --data_num DATA_NUM   Enter the number of data point to use for each project. Default=5000
+  --n_neighbors N_NEIGHBORS
+                        [UMAP] Number of approximate nearest neighbors used to construct the initial high-
+                        dimensional graph. Default=10
+  --n_components N_COMPONENTS
+                        [UMAP] Number of dimension to reduce to. Default=256
+  --min_dist MIN_DIST   [UMAP] Minimum distance between point in low-dimensional space. Default=0.0
+  --min_cluster_size MIN_CLUSTER_SIZE
+                        [HDBSCAN] Minimum size a cluster must contain. Default=5
+  --min_samples MIN_SAMPLES
+                        [HDBSCAN] The minimum number of points required to form a dense region (core
+                        points). Default=5
+  --research_title RESEARCH_TITLE
+                        The name of the research subject. (ex: test-01)

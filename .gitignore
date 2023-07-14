@@ -9,3 +9,4 @@ bin/
 *.swp
 git_projects/
 data/
+__pycache__

@@ -25,12 +25,15 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
 
   # Add an argument to the parser
-  parser.add_argument("data_num_", help="Enter the number of data for each project.")
+  parser.add_argument("--num",
+  						type=int,
+						default=1000,
+						help="Enter the number of data for each project.")
 
   # Parser the command-line argument
   args = parser.parse_args()
 
-  data_num = int(args.data_num_)
+  data_num = int(args.num)
 
   # Define the directory to search in
   directory = "../../git_projects/"
