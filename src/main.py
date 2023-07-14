@@ -93,10 +93,6 @@ def main(config):
 	embeddings, data_list = codeBERT_util.embed_data(projects, data_list, config.data_num)
 
 
-	chng_neigh = [
-		[10, 256, 0.0, 60, 10, 'testTERM-01'],
-	]
-
 	# docs_per_topic: each data labeled to a cluster (topic)
 	# top_n_words: dataframe of datapoint with top n words sorted (according to c-tf-idf)
 	# topic_sizes: topic sizes in order of cluster with most datapoints

@@ -8,7 +8,10 @@ This is a project (in-process) forms clusters for given code snippet data for so
 * We leverage [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.htmlh) to form a cluster of given source code snippets
 
 ## Dependency
-* Python library dependencies can be found [here](https://github.com/yheechan/Source-Code-Embedding/blob/master/docs/dependency.txt).
+* Python library dependencies can be found at [requirements.txt](https://github.com/yheechan/Source-Code-Embedding/blob/master/docs/dependency.txt).
+```
+$ pip install -r requirements.txt
+```
 
 ## Run Program
 1. run ```$ ./clone_cmd.sh``` to clone all 10 open-source github projects. (found in ```./src/init_data/```)
