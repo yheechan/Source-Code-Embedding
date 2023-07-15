@@ -2,10 +2,9 @@
 
 ## General Info
 This is a project (in-process) forms clusters for given code snippet data for source code analyzing using LLM model, [CodeBERT](https://github.com/microsoft/CodeBERT).
-
 * We leverage [CodeBERT](https://github.com/microsoft/CodeBERT), a Pre-Trained Model for Programming and Natural Language ([paper](https://arxiv.org/pdf/2002.08155.pdf)), to embed given source code snippet.
 * We leverage [UMAP](https://umap-learn.readthedocs.io/en/latest/) to reduce dimensions of resulting embeddings
-* We leverage [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.htmlh) to form a cluster of given source code snippets
+* We leverage [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html) to form a cluster of given source code snippets
 
 ## Dependency
 * Python library dependencies can be found at [requirements.txt](https://github.com/yheechan/Source-Code-Embedding/blob/master/docs/dependency.txt).
@@ -53,3 +52,6 @@ optional arguments:
 
 ## Results
 Results can be seen in ```./results/``` directory.
+
+## Reference
+* [Code Implementation](https://www.kdnuggets.com/2020/11/topic-modeling-bert.html)
