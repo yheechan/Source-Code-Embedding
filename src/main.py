@@ -5,7 +5,7 @@ import pprint
 import lib.data_util as data_util
 import lib.codeBERT_util as codeBERT_util
 import lib.cluster_util as cluster_util
-import lib.record_util as record_util
+import lib.write_util as write_util
 
 
 def define_argparser():
@@ -104,7 +104,7 @@ def main(config):
 		config.research_title
 	)
 
-	record_util.write_results(topic_sizes, top_n_words,
+	write_util.write_results(topic_sizes, top_n_words,
 		config.n_neighbors,
 		config.n_components,
 		config.min_dist,
