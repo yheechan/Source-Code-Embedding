@@ -1,14 +1,11 @@
-import warnings
-warnings.filterwarnings("ignore", message=".*The 'nopython' keyword.*")
-
 import argparse
 import pprint
 
 # MY UTIL LIBRARY
-import data_util
-import codeBERT_util
-import cluster_util
-import record_util
+import lib.data_util as data_util
+import lib.codeBERT_util as codeBERT_util
+import lib.cluster_util as cluster_util
+import lib.record_util as record_util
 
 
 def define_argparser():

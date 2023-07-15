@@ -24,7 +24,10 @@ optional arguments:
   --num NUM   Enter the number of data for each project.
 ```
 3. run ```$ python3 main.py``` to execute the main program of the project to embed and cluster given code snippet data. (found in ```./src/```)
-
+```
+EXAMPLE COMMAND:
+$ python3 main.py --data_num 5000 --n_neighbors 10 --n_components 256 --min_dist 0.0 --min_cluster_size 5 --min_samples 5 --research_title test-01
+```
 ```
 usage: main.py [-h] [--data_num DATA_NUM] [--n_neighbors N_NEIGHBORS] [--n_components N_COMPONENTS]
                [--min_dist MIN_DIST] [--min_cluster_size MIN_CLUSTER_SIZE] [--min_samples MIN_SAMPLES]
