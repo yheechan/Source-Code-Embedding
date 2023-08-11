@@ -16,7 +16,7 @@ def define_argparser():
 	p.add_argument(
 		'--data_num',
 		type=int,
-		default=5000,
+		default=435,
 		help='Enter the number of data point to use for each project. Default=%(default)s'
 	)
 
@@ -61,6 +61,12 @@ def define_argparser():
 		help='The name of the research subject. (ex: test-01)'
 	)
 
+	p.add_argument(
+		'--target_data',
+		required=True,
+		help='The directory name for which data is used to be tested'
+	)
+
 	config = p.parse_args()
 
 	return config
@@ -75,7 +81,7 @@ def main(config):
 	print_config(config)
 
 	# GET LISTS OF PROJECTS
-	data_path = "../data/"
+	data_path = "../data/" + str(config.target_data) + "/"
 	projects = data_util.get_projects(data_path)
 
 
